@@ -1,0 +1,1 @@
+java -jar KrpanoConv.jar
