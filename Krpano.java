@@ -165,7 +165,7 @@ public class Krpano {
 					    }
 						reader.setLocale(null);
 						stream.seek(0);
-						if(useGC && (index%250==0 || pixelh>250)) System.gc();
+						if(useGC && (index%(250-(250%pixelh))==0 || pixelh>250)) System.gc();
 						index+=pixelh;
 					}
 				}
@@ -240,7 +240,7 @@ public class Krpano {
 						    g.drawImage(reader.read(0, param), i+tiles2, index, tileNeg, rect.height, null);
 					    }
 					    reader.setLocale(null);
-						if(useGC && (index%250==0 || pixelh>250)) System.gc();
+						if(useGC && (index%(250-(250%pixelh))==0 || pixelh>250)) System.gc();
 						index+=pixelh;
 					}
 				}
