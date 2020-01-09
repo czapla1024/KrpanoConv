@@ -27,10 +27,17 @@ public class Krpano {
         System.out.println("Nazwa pliku 焤骴硂wego: ");
 		final String fileName = scan.nextLine();
 		final File file = new File(fileName);
-		
+		if(!file.exists()) System.out.println("Plik nie istnieje!");
 		int ist = fileName.lastIndexOf('.');
-		if (ist > 0 && file.exists()) {
+		if (ist > 0) {
 		    String ext = fileName.substring(ist+1).toLowerCase();
+		    if (!(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png"))){
+		        System.out.println("Nieobs硊giwany format!");
+				System.out.println("Wci渘ij Enter by zamkn规...");
+				scan.nextLine();
+				scan.close();
+				return;
+		    }
 			int pixelh = 0;
 	    	String numbuf = fileName.substring(0, ist) + " (Krpano)." + ext;
 	        System.out.println("Nazwa pliku wynikowego (domy渓nie \"" + numbuf + "\"): ");
@@ -97,6 +104,13 @@ public class Krpano {
 					    if(tileHeight==1) {
 					    	tileHeight = reader.getHeight(0);
 					    	width = reader.getWidth(0);
+					    	if(!(tileHeight*6==width || tileHeight*12==width)) {
+					    		System.out.println("Obraz ma b酬dne wymiary!");
+					    		System.out.println("Wci渘ij Enter by zamkn规...");
+					    		scan.nextLine();
+					    		scan.close();
+					    		return;
+					    	}
 					    	buf= new BufferedImage(width, tileHeight, BufferedImage.TYPE_INT_RGB);
 					    	g=buf.getGraphics();
 					    	tiles2 = 2*tileHeight;
@@ -190,6 +204,13 @@ public class Krpano {
 					    if(tileHeight==1) {
 					    	tileHeight = reader.getHeight(0);
 					    	width = reader.getWidth(0);
+					    	if(!(tileHeight*6==width || tileHeight*12==width)) {
+					    		System.out.println("Obraz ma b酬dne wymiary!");
+					    		System.out.println("Wci渘ij Enter by zamkn规...");
+					    		scan.nextLine();
+					    		scan.close();
+					    		return;
+					    	}
 					    	buf= new BufferedImage(width, tileHeight, BufferedImage.TYPE_INT_RGB);
 					    	g=buf.getGraphics();
 					    	tiles2 = 2*tileHeight;
@@ -263,18 +284,24 @@ public class Krpano {
 				}
 				while (pixelh<=0);
 				
-				System.out.println("Przetwarzanie w toku...");
-				
 		    	final PngReader pngr = new PngReader(file);
 				final PngWriter pngw = new PngWriter(new File(outName), pngr.imgInfo, true);
 				final int channels = pngr.imgInfo.channels;
 				final int rows = pngr.imgInfo.rows;
+		    	if(!(rows*6==pngr.imgInfo.cols || rows*12==pngr.imgInfo.cols)) {
+		    		System.out.println("Obraz ma b酬dne wymiary!");
+		    		System.out.println("Wci渘ij Enter by zamkn规...");
+		    		scan.nextLine();
+		    		scan.close();
+		    		return;
+		    	}
 		 		final int[][] inv = new int[pixelh][channels*(pngr.imgInfo.cols/3)];
 				final int rows1 = rows*channels;
 				final int rows2 = 2*rows1;
 				final int rows4 = 2*rows2;
 				final int rows5 = rows4+rows1;
 				final int rows6 = rows5+rows1;
+				System.out.println("Przetwarzanie w toku...");
 			 	for (int row = 0; row < rows; row++) {
 					final IImageLine l1 = pngr.readRow();
 					final int[] pixtab = ((ImageLineInt)l1).getScanline();
@@ -315,16 +342,8 @@ public class Krpano {
 				 pngw.end();
 				 System.out.println("Uko馽zono!");
 		    }
-		    else {
-		    	System.out.println("Nieobs硊giwany format!");
-		    }
 		}
-		else {
-			if(!file.exists()) {
-				System.out.println("Plik nie istnieje!");
-			}
-			else System.out.println("Plik nie ma rozszerzenia!");
-		}
+		else System.out.println("Plik nie ma rozszerzenia!");
 		System.out.println("Wci渘ij Enter by zamkn规...");
 		scan.nextLine();
 		scan.close();
