@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -38,47 +39,33 @@ public class Krpano {
 				scan.close();
 				return;
 		    }
-			int pixelh = 0;
 	    	String numbuf = fileName.substring(0, ist) + " (Krpano)." + ext;
 	        System.out.println("Nazwa pliku wynikowego (domyœlnie \"" + numbuf + "\"): ");
 			String outName = scan.nextLine();
 			if(outName.isEmpty()) outName = numbuf;
-			
-			boolean usePNGJ = true;
-			boolean input;
+
+			final String[] yes = new String[] {"y","yes","t","tak","1"};
+			final String[] no = new String[] {"n","no","nie","0",""};
+			final boolean usePNGJ;
 			if(ext.equals("png")) {
-				input = false;
 				do {
 					System.out.println("Czy chcesz wykorzystaæ bibliotekê PNGJ by Leonbloy? (domyœlnie nie)");
 					numbuf = scan.nextLine().toLowerCase();
-					if (numbuf.equals("y") || numbuf.equals("yes") || numbuf.equals("t") || numbuf.equals("tak") || numbuf.equals("1")) {
-						input = true;
-						usePNGJ = true;
-					}
-					if (numbuf.equals("n") || numbuf.equals("no") || numbuf.equals("nie") || numbuf.equals("0")|| numbuf.isEmpty()) {
-						input = true;
-						usePNGJ = false;
-					}
 				}
-				while (!input);
+				while (!(Arrays.stream(yes).anyMatch(numbuf::equals) || Arrays.stream(no).anyMatch(numbuf::equals)));
+				if(Arrays.stream(yes).anyMatch(numbuf::equals)) usePNGJ = true;
+				else usePNGJ = false;
 			}
+			else usePNGJ = false;
 			
-			
-			boolean useGC = true;
-			input = false;
+			final boolean useGC;
 			do {
 				System.out.println("Czy chcesz wymusiæ Garbage Collector? (domyœlnie nie)");
 				numbuf = scan.nextLine().toLowerCase();
-				if (numbuf.equals("y") || numbuf.equals("yes") || numbuf.equals("tak") || numbuf.equals("1")) {
-					input = true;
-					useGC = true;
-				}
-				if (numbuf.equals("n") || numbuf.equals("no") || numbuf.equals("nie") || numbuf.equals("0")|| numbuf.isEmpty()) {
-					input = true;
-					useGC = false;
-				}
 			}
-			while (!input);
+			while (!(Arrays.stream(yes).anyMatch(numbuf::equals) || Arrays.stream(no).anyMatch(numbuf::equals)));
+			if(Arrays.stream(yes).anyMatch(numbuf::equals)) useGC = true;
+			else useGC = false;
 			
 		    if(ext.equals("jpg")||ext.equals("jpeg")) {
 				int tileHeight = 1, width = 1, index = 0, tiles2 = 0, tiles3 = 0, tiles4 = 0, tiles5 = 0, tiles6 = 0, tileNeg = 0;
@@ -111,31 +98,29 @@ public class Krpano {
 					    		scan.close();
 					    		return;
 					    	}
-					    	buf= new BufferedImage(width, tileHeight, BufferedImage.TYPE_INT_RGB);
-					    	g=buf.getGraphics();
+					    	buf = new BufferedImage(width, tileHeight, BufferedImage.TYPE_INT_RGB);
+					    	g = buf.getGraphics();
 					    	tiles2 = 2*tileHeight;
 					    	tiles3 = tileHeight+tiles2;
 					    	tiles4 = tileHeight+tiles3;
 					    	tiles5 = tileHeight+tiles4;
 					    	tiles6 = tileHeight+tiles5;
 					    	tileNeg = -tileHeight;
-					    	
 							do {
 								System.out.println("Szerokoœæ bufora w pikselach (domyœlnie wysokoœæ Ÿród³a - " + tileHeight + "): ");
 								numbuf = scan.nextLine();
 								try{
-									pixelh = Integer.parseInt(numbuf);
+									rect.height = Integer.parseInt(numbuf);
 								}
 								catch (Exception e) {
 									if(numbuf.isEmpty()){
-										pixelh = tileHeight;
+										rect.height = tileHeight;
 									}
 								}
 							}
-							while (pixelh<=0);
+							while (rect.height<=0);
 
 							rect.width = tileHeight;
-							rect.height = pixelh;
 					    	
 							float jpgComp  = -1f;
 							do {
@@ -151,9 +136,7 @@ public class Krpano {
 								}
 							}
 							while (jpgComp<0f || jpgComp>1f);
-
 							wrparam.setCompressionQuality(jpgComp);
-							
 							System.out.println("Przetwarzanie w toku...");
 					    }
 					    rect.y = index;
@@ -180,8 +163,8 @@ public class Krpano {
 					    }
 						reader.setLocale(null);
 						stream.seek(0);
-						if(useGC && (index%(250-(250%pixelh))==0 || pixelh>250)) System.gc();
-						index+=pixelh;
+						if(useGC && (index%(250-(250%rect.height))==0 || rect.height>250)) System.gc();
+						index+=rect.height;
 					}
 				}
 				g.dispose();
@@ -221,22 +204,20 @@ public class Krpano {
 					    	tiles6 = tileHeight+tiles5;
 					    	tileNeg = -tileHeight;
 					    	
-							do {
+					    	do {
 								System.out.println("Szerokoœæ bufora w pikselach (domyœlnie wysokoœæ Ÿród³a - " + tileHeight + "): ");
 								numbuf = scan.nextLine();
 								try{
-									pixelh = Integer.parseInt(numbuf);
+									rect.height = Integer.parseInt(numbuf);
 								}
 								catch (Exception e) {
 									if(numbuf.isEmpty()){
-										pixelh = tileHeight;
+										rect.height = tileHeight;
 									}
 								}
 							}
-							while (pixelh<=0);
+							while (rect.height<=0);
 							rect.width = tileHeight;
-							rect.height = pixelh;
-					    	
 					    	System.out.println("Przetwarzanie w toku...");
 					    }
 					    rect.y = index;
@@ -262,15 +243,26 @@ public class Krpano {
 						    g.drawImage(reader.read(0, param), i+tiles2, index, tileNeg, rect.height, null);
 					    }
 					    reader.setLocale(null);
-						if(useGC && (index%(250-(250%pixelh))==0 || pixelh>250)) System.gc();
-						index+=pixelh;
+						if(useGC && (index%(250-(250%rect.height))==0 || rect.height>250)) System.gc();
+						index+=rect.height;
 					}
 				}
 				g.dispose();
 				ImageIO.write(buf, "png", out);
 				System.out.println("Ukoñczono!");
 		    } else if(ext.equals("png")){
-		    	
+		    	final PngReader pngr = new PngReader(file);
+				final PngWriter pngw = new PngWriter(new File(outName), pngr.imgInfo, true);
+				final int channels = pngr.imgInfo.channels;
+				final int rows = pngr.imgInfo.rows;
+		    	if(!(rows*6==pngr.imgInfo.cols || rows*12==pngr.imgInfo.cols)) {
+		    		System.out.println("Obraz ma b³êdne wymiary!");
+		    		System.out.println("Wciœnij Enter by zamkn¹æ...");
+		    		scan.nextLine();
+		    		scan.close();
+		    		return;
+		    	}
+				int pixelh = 0;
 				do {
 					System.out.println("Szerokoœæ bufora w pikselach (domyœlnie 100): ");
 					numbuf = scan.nextLine();
@@ -284,18 +276,6 @@ public class Krpano {
 					}
 				}
 				while (pixelh<=0);
-				
-		    	final PngReader pngr = new PngReader(file);
-				final PngWriter pngw = new PngWriter(new File(outName), pngr.imgInfo, true);
-				final int channels = pngr.imgInfo.channels;
-				final int rows = pngr.imgInfo.rows;
-		    	if(!(rows*6==pngr.imgInfo.cols || rows*12==pngr.imgInfo.cols)) {
-		    		System.out.println("Obraz ma b³êdne wymiary!");
-		    		System.out.println("Wciœnij Enter by zamkn¹æ...");
-		    		scan.nextLine();
-		    		scan.close();
-		    		return;
-		    	}
 		 		final int[][] inv = new int[pixelh][channels*(pngr.imgInfo.cols/3)];
 				final int rows1 = rows*channels;
 				final int rows2 = 2*rows1;
@@ -307,7 +287,7 @@ public class Krpano {
 					final IImageLine l1 = pngr.readRow();
 					final int[] pixtab = ((ImageLineInt)l1).getScanline();
 					if(row%pixelh==0) {
-				    	PngReader pngrInv = new PngReader(file);
+				    	final PngReader pngrInv = new PngReader(file);
 				    	for(int x = 0; x<inv.length; x++) {
 							final IImageLine l2 = pngrInv.readRow(rows-row+x-Math.min(pixelh, rows-row));
 							final int[] tempInv = ((ImageLineInt)l2).getScanline();
