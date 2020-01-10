@@ -83,7 +83,7 @@ public class Krpano {
 		    if(ext.equals("jpg")||ext.equals("jpeg")) {
 				int tileHeight = 1, width = 1, index = 0, tiles2 = 0, tiles3 = 0, tiles4 = 0, tiles5 = 0, tiles6 = 0, tileNeg = 0;
 				final File out = new File(outName);
-				Rectangle rect = null;
+				final Rectangle rect = new Rectangle(0, 0, 0, 0);
 				out.createNewFile();
 				BufferedImage buf = null;
 			    Graphics g = null;
@@ -134,7 +134,8 @@ public class Krpano {
 							}
 							while (pixelh<=0);
 
-					    	rect = new Rectangle(0, 0, tileHeight, pixelh);
+							rect.width = tileHeight;
+							rect.height = pixelh;
 					    	
 							float jpgComp  = -1f;
 							do {
@@ -190,7 +191,7 @@ public class Krpano {
 		    else if(ext.equals("png") && (!usePNGJ)){
 		    	int tileHeight = 1, width = 1, index = 0, tiles2 = 0, tiles3 = 0, tiles4 = 0, tiles5 = 0, tiles6 = 0, tileNeg = 0;
 				final File out = new File(outName);
-				Rectangle rect = null;
+				final Rectangle rect = new Rectangle(0, 0, 0, 0);
 				out.createNewFile();
 				BufferedImage buf = null;
 			    Graphics g = null;
@@ -233,8 +234,8 @@ public class Krpano {
 								}
 							}
 							while (pixelh<=0);
-
-					    	rect = new Rectangle(0, 0, tileHeight, pixelh);
+							rect.width = tileHeight;
+							rect.height = pixelh;
 					    	
 					    	System.out.println("Przetwarzanie w toku...");
 					    }
